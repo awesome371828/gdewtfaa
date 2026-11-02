@@ -3,12 +3,8 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-        <link rel="icon" type="image/svg+xml" href="icon.svg">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <meta name="theme-color" content="#061128">
-        <title>Карта тревог и радар БПЛА по всей России онлайн — дроны, ПВО, отбой | GDE.WTF</title>
+        <title>АРТЕМ ГЕЙ</title>
         <meta name="description" content="Где сейчас дроны и работает ПВО: карта тревог онлайн по районам городов всей России. Уровень опасности, метки жителей, укрытия рядом. Бесплатно, в браузере.">
         <meta name="keywords" content="карта тревог, радар БПЛА, беспилотная опасность, дроны сейчас, ПВО, карта тревог России, тревога по городам, укрытия рядом, отбой тревоги">
         <meta name="robots" content="index, follow, max-image-preview:large">
@@ -19,7 +15,7 @@
         <meta name="ICBM" content="47.2357, 39.7015">
         <meta property="og:type" content="website">
         <meta property="og:locale" content="ru_RU">
-        <meta property="og:site_name" content="GDE.WTF">
+        <meta property="og:site_name" content="АРТЕМ ГЕЙ">
         <meta property="og:url" content="https://gde.wtf/">
         <meta property="og:title" content="Карта тревог и радар БПЛА по всей России — GDE.WTF">
         <meta property="og:description" content="Что сейчас над городом: карта по районам, уровень тревоги, метки от людей рядом и укрытия. Открывается в браузере, ставить ничего не нужно.">
@@ -31,8 +27,9 @@
         <meta name="twitter:title" content="Карта тревог и радар БПЛА по всей России — GDE.WTF">
         <meta name="twitter:description" content="Где сейчас дроны и работает ПВО — по районам, в реальном времени. Бесплатно, в браузере.">
         <meta name="twitter:image" content="https://gde.wtf/og.png">
-        <meta name="application-name" content="GDE.WTF">
+        <meta name="application-name" content="АРТЕМ ГЕЙ">
         <meta name="apple-mobile-web-app-title" content="GDE.WTF">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
         <script type="application/ld+json">
             {
                 "@context": "https://schema.org",
@@ -34472,6 +34469,7 @@
         }
     ]
 }</script>
+<link rel="icon" type="image/png" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -35683,7 +35681,7 @@
                         <circle cx="200" cy="200" r="11" fill="none" stroke="#7fe4ff" stroke-opacity=".55" stroke-width="1.4"/>
                         <circle class="blip" cx="200" cy="200" r="5" fill="#9ceeff"/>
                     </svg>
-                    <img class="uav" src="hero.svg" alt="Беспилотник над городом" width="1200" height="261" decoding="async">
+                    <img class="uav" src="/hero.png" alt="Беспилотник над городом" width="1200" height="261" decoding="async">
                 </div>
             </div>
             <div class="wordmark" aria-hidden="true">
@@ -35935,7 +35933,101 @@
                     <button class="spon-never" id="spon_never">Больше не показывать</button>
                 </div>
                 <script>
-
+                    (function() {
+                        var W = document.getElementById('sponwrap');
+                        if (!W)
+                            return;
+                        var ID = W.getAttribute('data-id') || 'vetavpn';
+                        function kill() {
+                            W.parentNode && W.parentNode.removeChild(W);
+                        }
+                        try {
+                            if (localStorage.getItem('spon_never_' + ID)) {
+                                kill();
+                                return;
+                            }
+                        } catch (e) {}
+                        try {
+                            if (sessionStorage.getItem('spon_hide_' + ID)) {
+                                return;
+                            }
+                        } catch (e) {}
+                        function track(ev) {
+                            try {
+                                var b = JSON.stringify({
+                                    id: ID,
+                                    e: ev
+                                });
+                                if (navigator.sendBeacon) {
+                                    navigator.sendBeacon('/api/sponsor/track', new Blob([b],{
+                                        type: 'application/json'
+                                    }));
+                                } else {
+                                    fetch('/api/sponsor/track', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: b,
+                                        keepalive: true
+                                    });
+                                }
+                            } catch (err) {}
+                        }
+                        function reveal() {
+                            W.style.display = '';
+                            try {
+                                if (!sessionStorage.getItem('spon_view_' + ID)) {
+                                    sessionStorage.setItem('spon_view_' + ID, '1');
+                                    track('view');
+                                }
+                            } catch (e) {
+                                track('view');
+                            }
+                        }
+                        var g = null;
+                        try {
+                            g = sessionStorage.getItem('spon_geo_' + ID);
+                        } catch (e) {}
+                        if (g === '1') {
+                            reveal();
+                        } else if (g === '0') {
+                            kill();
+                        } else {
+                            fetch('/api/sponsor/geo', {
+                                cache: 'no-store'
+                            }).then(function(r) {
+                                return r.json();
+                            }).then(function(d) {
+                                var ok = !!(d && d.show);
+                                try {
+                                    sessionStorage.setItem('spon_geo_' + ID, ok ? '1' : '0');
+                                } catch (e) {}
+                                if (ok)
+                                    reveal();
+                                else
+                                    kill();
+                            }).catch(function() {
+                                kill();
+                            });
+                        }
+                        var link = document.getElementById('spon_link');
+                        if (link)
+                            link.addEventListener('click', function() {
+                                track('click');
+                            });
+                        var nv = document.getElementById('spon_never');
+                        if (nv)
+                            nv.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                try {
+                                    localStorage.setItem('spon_never_' + ID, '1');
+                                } catch (err) {}
+                                kill();
+                            });
+                    }
+                    )();
                 </script>
             </div>
         </div>
@@ -40509,7 +40601,7 @@
             <span class="dot">·</span>
             <span>Не является официальным источником оповещения</span>
             <span class="dot">·</span>
-            <a href="https://gde.wtf/cities" class="flink">Все города</a>
+            <a href="/cities" class="flink">Все города</a>
             <span class="dot">·</span>
             <a href="https://t.me/pravy_ru" target="_blank" rel="noopener" class="flink">Связь: @pravy_ru</a>
             <span class="dot">·</span>
@@ -40518,8 +40610,8 @@
     </footer>
     <script>
         (function() {
-            // GitHub Pages is a static mirror: always open the real map service.
-            var url = 'https://map.gde.wtf/';
+            var h = location.hostname.replace(/^www\./, '');
+            var url = (h.indexOf('map.') === 0) ? ('https://' + h + '/') : ('https://map.' + h + '/');
             Array.prototype.forEach.call(document.querySelectorAll('[data-map]'), function(a) {
                 a.href = url;
             });
